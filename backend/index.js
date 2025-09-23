@@ -9,14 +9,14 @@ const prisma = new PrismaClient();
 const PORT = process.env.PORT || 8080;
 
 // Rota para listar todos os pets
-// Funcionalidade: Visualização de Pets Disponíveis [cite: 31, 32, 33]
+// Funcionalidade: Visualização de Pets Disponíveis 
 app.get('/pets', async (req, res) => {
   const pets = await prisma.pet.findMany();
   return res.status(200).json(pets);
 });
 
 // Rota para cadastrar um novo pet
-// Funcionalidade: Cadastro de Pets [cite: 13, 14, 15, 16, 17, 18, 19]
+// Operação: CRUD (Create) para pets [cite: 40]
 app.post('/pets', async (req, res) => {
   try {
     const { name, species, birth_date, description, status } = req.body;
@@ -37,7 +37,7 @@ app.post('/pets', async (req, res) => {
 });
 
 // Rota para atualizar um pet existente
-// Operação: CRUD (Update) para pets [cite: 40]
+// Operação: CRUD (Update) para pets 
 app.put('/pets/:id', async (req, res) => {
   const { id } = req.params;
   const { name, species, birth_date, description, status } = req.body;
@@ -64,7 +64,7 @@ app.put('/pets/:id', async (req, res) => {
 });
 
 // Rota para deletar um pet
-// Operação: CRUD (Delete) para pets [cite: 40]
+// Operação: CRUD (Delete) para pets 
 app.delete('/pets/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -82,7 +82,7 @@ app.delete('/pets/:id', async (req, res) => {
 });
 
 // Rota para cadastrar um novo adotante
-// Funcionalidade: Gerenciamento de Adotantes [cite: 20, 21, 22, 23, 24, 25]
+// Funcionalidade: Gerenciamento de Adotantes 
 app.post('/adopters', async (req, res) => {
   const { name, email, phone, address } = req.body;
   try {
@@ -102,7 +102,7 @@ app.post('/adopters', async (req, res) => {
 });
 
 // Rota para formalizar a adoção de um pet
-// Funcionalidade: Processo de Adoção [cite: 27, 28, 29, 30]
+// Funcionalidade: Processo de Adoção de Pets 
 app.post('/adoptions', async (req, res) => {
   const { pet_id, adopter_id } = req.body;
 
@@ -130,7 +130,7 @@ app.post('/adoptions', async (req, res) => {
     }
 
     // 3. Realiza a adoção e atualiza o status do pet em uma única transação
-    // O status do pet é atualizado automaticamente para "adotado" [cite: 30]
+    // O status do pet é atualizado automaticamente para "adotado"
     const newAdoption = await prisma.$transaction(async (prisma) => {
       // Cria o registro de adoção
       const adoption = await prisma.adoption.create({
