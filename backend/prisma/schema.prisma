@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Pet {
+  id          String   @id @default(uuid())
+  name        String
+  species     String
+  birth_date  DateTime
+  description String
+  status      Boolean  @default(true) // true = disponível, false = adotado
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  adoptions Adoption[] //Um pet pode ter uma ou mais adoções
+
+  @@map("pets")
+}
+
+model Adopter {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  phone     String
+  address   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  adoptions Adoption[] //Um adotante pode fazer uma ou mais adoções
+
+  @@map("adopters")
+}
+
+model Adoption {
+  id           String   @id @default(uuid())
+  petId        String
+  adopterId    String
+  adoptionDate DateTime @default(now())
+
+  pet     Pet     @relation(fields: [petId], references: [id])
+  adopter Adopter @relation(fields: [adopterId], references: [id])
+
+  @@map("adoptions")
+}
