@@ -7,13 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum PetStatus {
+  disponivel
+  adotado
+}
+
 model Pet {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   name        String
   species     String
   birth_date  DateTime
   description String
-  status      Boolean  @default(true) // true = disponível, false = adotado
+  status      PetStatus @default(disponivel) // Usa o Enum para clareza e segurança
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

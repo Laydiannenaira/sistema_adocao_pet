@@ -1,7 +1,6 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 
-
 const app = express();
 app.use(express.json());
 
@@ -9,75 +8,101 @@ const prisma = new PrismaClient();
 
 const PORT = process.env.PORT || 8080;
 
+// Rota para listar todos os pets
+// Funcionalidade: Visualização de Pets Disponíveis [cite: 31, 32, 33]
 app.get('/pets', async (req, res) => {
   const pets = await prisma.pet.findMany();
-  return res.json(pets).sendStatus(200);
+  return res.status(200).json(pets);
 });
 
+// Rota para cadastrar um novo pet
+// Funcionalidade: Cadastro de Pets [cite: 13, 14, 15, 16, 17, 18, 19]
 app.post('/pets', async (req, res) => {
-  const { name, species, birth_date, description, status  } = req.body;
-  const newPet = await prisma.pet.create({
-    data: {
-      name,
-      species,
-      birth_date,
-      description,
-      status
-    }
-  });
-  return res.json(newPet).sendStatus(201);
-});
-
-app.put('/pets/:id', async (req, res) => {
-  const { id } = req.params;
-  const { name, species, birth_date, description, status  } = req.body;
-
   try {
-    const updatedPet = await prisma.pet.update({
-      where: { id: Number(id) },
+    const { name, species, birth_date, description, status } = req.body;
+    const newPet = await prisma.pet.create({
       data: {
         name,
         species,
-        type,
         birth_date,
         description,
-        status
-      }
+        status,
+      },
     });
-    return res.json(updatedPet).sendStatus(200);
+    return res.status(201).json(newPet);
   } catch (error) {
-    // Código de erro do Prisma para "record not found"
-    if (error.code === 'P2025') {
-      return res.status(404).json({ message: 'Pet não encontrado' });
-    }
-    // Lida com outros erros, como um UUID mal formatado
     console.error(error);
-    return res.status(500).json("Erro ao atualizar pet");
+    return res.status(500).json({ message: 'Erro ao cadastrar o pet.' });
   }
 });
 
+// Rota para atualizar um pet existente
+// Operação: CRUD (Update) para pets [cite: 40]
+app.put('/pets/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, species, birth_date, description, status } = req.body;
+
+  try {
+    const updatedPet = await prisma.pet.update({
+      where: { id: id }, // ID é uma string (UUID)
+      data: {
+        name,
+        species,
+        birth_date,
+        description,
+        status,
+      },
+    });
+    return res.status(200).json(updatedPet);
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Pet não encontrado.' });
+    }
+    console.error(error);
+    return res.status(500).json({ message: 'Erro ao atualizar o pet.' });
+  }
+});
+
+// Rota para deletar um pet
+// Operação: CRUD (Delete) para pets [cite: 40]
 app.delete('/pets/:id', async (req, res) => {
   const { id } = req.params;
-  await prisma.pet.delete({
-    where: { id: Number(id) }
-  });
-  return res.sendStatus(204);
+  try {
+    await prisma.pet.delete({
+      where: { id: id }, // ID é uma string (UUID)
+    });
+    return res.sendStatus(204);
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Pet não encontrado.' });
+    }
+    console.error(error);
+    return res.status(500).json({ message: 'Erro ao deletar o pet.' });
+  }
 });
 
-
+// Rota para cadastrar um novo adotante
+// Funcionalidade: Gerenciamento de Adotantes [cite: 20, 21, 22, 23, 24, 25]
 app.post('/adopters', async (req, res) => {
   const { name, email, phone, address } = req.body;
-  const newAdopter = await prisma.adopter.create({  
-    data: {
-      name,
-      email,
-      phone,
-      address
-    }
-  });
-  return res.json(newAdopter).sendStatus(201);
+  try {
+    const newAdopter = await prisma.adopter.create({
+      data: {
+        name,
+        email,
+        phone,
+        address,
+      },
+    });
+    return res.status(201).json(newAdopter);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Erro ao cadastrar o adotante.' });
+  }
 });
 
+// Rota para formalizar a adoção de um pet
+// Funcionalidade: Processo de Adoção [cite: 27, 28, 29, 30]
 app.post('/adoptions', async (req, res) => {
   const { pet_id, adopter_id } = req.body;
 
@@ -91,7 +116,7 @@ app.post('/adoptions', async (req, res) => {
       return res.status(404).json({ message: 'Pet não encontrado.' });
     }
 
-    if (petToAdopt.status === 'adotado') {
+    if (petToAdopt.status === false) { // Usando 'false' para "adotado"
       return res.status(400).json({ message: 'Este pet já foi adotado.' });
     }
 
@@ -105,20 +130,21 @@ app.post('/adoptions', async (req, res) => {
     }
 
     // 3. Realiza a adoção e atualiza o status do pet em uma única transação
+    // O status do pet é atualizado automaticamente para "adotado" [cite: 30]
     const newAdoption = await prisma.$transaction(async (prisma) => {
-      // Cria o registro de adoção na tabela 'Adoções'
+      // Cria o registro de adoção
       const adoption = await prisma.adoption.create({
         data: {
-          pet_id: pet_id,
-          adopter_id: adopter_id,
-          date_adopted: new Date(), // Registra a data atual da adoção
+          petId: pet_id,
+          adopterId: adopter_id,
+          adoptionDate: new Date(),
         },
       });
 
-      // Atualiza o status do pet para 'adotado'
+      // Atualiza o status do pet para 'false' (adotado)
       await prisma.pet.update({
         where: { id: pet_id },
-        data: { status: 'adotado' },
+        data: { status: false },
       });
 
       return adoption;
