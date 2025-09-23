@@ -141,10 +141,10 @@ app.post('/adoptions', async (req, res) => {
         },
       });
 
-      // Atualiza o status do pet para 'false' (adotado)
+      // Atualiza o status do pet para 'adotado'
       await prisma.pet.update({
         where: { id: pet_id },
-        data: { status: false },
+        data: { status: 'adotado' },
       });
 
       return adoption;
