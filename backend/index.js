@@ -116,7 +116,7 @@ app.post('/adoptions', async (req, res) => {
       return res.status(404).json({ message: 'Pet não encontrado.' });
     }
 
-    if (petToAdopt.status === false) { // Usando 'false' para "adotado"
+    if (petToAdopt.status === 'adotado') { 
       return res.status(400).json({ message: 'Este pet já foi adotado.' });
     }
 

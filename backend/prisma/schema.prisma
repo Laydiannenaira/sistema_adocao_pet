@@ -20,24 +20,34 @@ model Pet {
   description String
   status      PetStatus @default(disponivel) // Usa o Enum para clareza e segurança
 
+  adopter   Adopter? @relation(fields: [adopterId], references: [id])
+  adopterId String?  @unique
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  adoptions Adoption[] //Um pet pode ter uma ou mais adoções
+  // adoptions Adoption[] //Um pet pode ter uma ou mais adoções
+  // Adoption Adoption[]
+  Adoption Adoption[]
 
   @@map("pets")
 }
 
 model Adopter {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  phone     String
-  address   String
+  id      String @id @default(uuid())
+  name    String
+  email   String @unique
+  phone   String
+  address String
+
+  pet Pet?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  adoptions Adoption[] //Um adotante pode fazer uma ou mais adoções
+  // adoptions Adoption[] //Um adotante pode fazer uma ou mais adoções
+  // Adoption Adoption[]
+  Adoption Adoption[]
 
   @@map("adopters")
 }
