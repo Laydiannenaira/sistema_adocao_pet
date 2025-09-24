@@ -64,4 +64,4 @@ Para executar o backend localmente, siga os passos abaixo:
 
 ### Contribuição
 
-Este projeto foi desenvolvido por **Squad 8 para o curso de **Desenvolvimento Full Stack Básico**, projeto **DFS-2025.3**.
+Este projeto foi desenvolvido por **Squad** 8 para o curso de **Desenvolvimento Full Stack Básico**, projeto **DFS-2025.3**.
